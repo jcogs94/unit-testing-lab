@@ -1,8 +1,14 @@
 import './Task.css'
 
-const Task = ({ task }) => {
+const Task = ({ task, tasks, setTasks }) => {
     const handleCheck = () => {
-        
+        let newTasks = [...tasks]
+        newTasks.forEach( (oldTask) => {
+            if (oldTask.task === task.task) {
+                oldTask.completed = !oldTask.completed
+            }
+        })
+        setTasks(newTasks)
     }
     
     return <>
