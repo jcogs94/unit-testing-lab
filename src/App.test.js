@@ -2,43 +2,60 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import App from './App';
 import ToDoContainer from './components/ToDoContainer/ToDoContainer.jsx';
 
-it('should display a new task once added', () => {
-  render(<App />)
-  
+const createTask = ( view, name ) => {
   // Changes value of new task name input
-  const newTaskName = screen.getByRole('textbox')
-  fireEvent.change(newTaskName, {target: {value: 'test app'}})
-
-  // Clicks the add button
-  const addButton = screen.getByRole('button')
-  fireEvent.click(addButton)
-
-  // Gets new task by the test name
-  const newTask = screen.getByText('test app')
-
-  expect(newTask).toBeInTheDocument()
-  })
+  const newTaskName = view.getByRole('textbox')
+  fireEvent.change(newTaskName, {target: {value: name}})
   
-it('should allow the user to check off tasks', () => {
-  render(<App />)
-  
-  // Changes value of new task name input
-  const newTaskName = screen.getByRole('textbox')
-  fireEvent.change(newTaskName, {target: {value: 'test app'}})
-
   // Clicks the add button
-  const addButton = screen.getByRole('button')
+  const addButton = view.getByText('+')
   fireEvent.click(addButton)
+}
 
+const checkTask = ( view ) => {
   // Gets new task by the test name
-  const newTaskCheckbox = screen.getByRole('checkbox')
+  const newTaskCheckbox = view.getByRole('checkbox')
   fireEvent.click(newTaskCheckbox)
 
-  expect(newTaskCheckbox).toBeChecked()
+  return newTaskCheckbox
+}
+
+it('should display a new task once added', () => {
+  const view = render(<App />)
+  
+  const taskName = 'test app'
+  createTask(view, taskName)
+
+  // Gets new task by the test name
+  const newTask = view.getByText(taskName)
+
+  expect(newTask).toBeInTheDocument()
+})
+  
+it('should allow the user to check off tasks', () => {
+  const view = render(<App />)
+  
+  const taskName = 'test app'
+  createTask(view, taskName)
+
+  const checkbox = checkTask(view)
+
+  expect(checkbox).toBeChecked()
 })
 
-// it('should allow the user to clear completed tasks', () => {
-//   render(<ToDoContainer />)
-//   const containerDiv = screen.getByTestId('to-do-container')
-//   expect(containerDiv).toBeInTheDocument()
-// })
+it('should allow the user to clear completed tasks', () => {
+    const view = render(<App />)
+    
+    const taskName = 'test app'
+    createTask(view, taskName)
+  
+    // Gets new task by the test name
+    checkTask(view)
+
+    const clearButton = view.getByText('Clear Completed')
+    fireEvent.click(clearButton)
+
+    const testTask = view.queryByText(taskName)
+  
+    expect(testTask).toBeNull()
+})
